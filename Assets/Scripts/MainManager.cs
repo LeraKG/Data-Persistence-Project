@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
+using TMPro;
 
 public class MainManager : MonoBehaviour
 {
@@ -12,11 +14,17 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
+    public TextMeshProUGUI username;
+    public Text highScoreText;
     
     private bool m_Started = false;
-    private int m_Points;
+    [SerializeField] int m_Points;
     
     private bool m_GameOver = false;
+
+    [SerializeField] int previousScore;
+    [SerializeField] string nameString;
+
 
     
     // Start is called before the first frame update
@@ -36,6 +44,9 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        LoadPreviousScore();
+        highScoreText.text = "Highscore: " + previousScore + " by " + nameString;
+
     }
 
     private void Update()
@@ -57,7 +68,8 @@ public class MainManager : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                SceneManager.LoadScene(0);
             }
         }
     }
@@ -72,5 +84,38 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        if (m_Points >= previousScore)
+        {
+            SaveData data = new SaveData();
+            data.highscore = m_Points;
+            data.username = username.GetComponent<TextMeshProUGUI>().text;
+
+            string json = JsonUtility.ToJson(data);
+
+            File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+        }
+        
+        }
+
+
+    public void LoadPreviousScore()
+    {
+        string path = Application.persistentDataPath + "/savefile.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            previousScore = data.highscore;
+            nameString = data.username;
+        }
     }
 }
+    [System.Serializable]
+    class SaveData
+    {
+        public int highscore;
+        public string username;
+    }
+
+
