@@ -9,7 +9,7 @@ public class StartMenu : MonoBehaviour
 {
 
     public static StartMenu Instance;
-    public GameObject inputField;
+    //public GameObject inputField;
     public string username;
 
     private void Awake()
@@ -42,7 +42,7 @@ public class StartMenu : MonoBehaviour
     IEnumerator StartNewCoRoutine()
     {
         SceneManager.LoadScene(1);
-        username = inputField.GetComponent<TMP_InputField>().text;
+        //username = inputField.GetComponent<TMP_InputField>().text;
         yield return null;
         GameObject.Find("YourName").GetComponent<TextMeshProUGUI>().text = username;
 
